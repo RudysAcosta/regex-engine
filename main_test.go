@@ -20,3 +20,29 @@ func TestMatchChar(t *testing.T) {
 		}
 	}
 }
+
+func TestMatchRegex(t *testing.T) {
+	tests := []struct {
+		regex    string
+		str      string
+		expected bool
+	}{
+		{"apple", "apple", true},
+		{"ap", "apple", true},
+		{"le", "apple", true},
+		{"a", "apple", true},
+		{".", "apple", true},
+		{"apwle", "apple", false},
+		{"peach", "apple", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.regex+"_"+tt.str, func(t *testing.T) {
+			got := matchRegex(tt.regex, tt.str)
+			if got != tt.expected {
+				t.Errorf("matchRegexPattern(%q, %q) = %v; want %v", tt.regex, tt.str, got, tt.expected)
+			}
+		})
+	}
+
+}
