@@ -4,18 +4,18 @@ import "testing"
 
 func TestMatchChar(t *testing.T) {
 	tests := []struct {
-		pattern  byte
-		char     byte
+		pattern  string
+		char     string
 		expected bool
 	}{
-		{'a', 'a', true},
-		{'a', 'b', false},
-		{'.', 'a', true},
-		{'.', 'b', true},
+		{"apple", "apple", true},
+		{"pple", "apple", false},
+		{".pple", "apple", true},
+		{".....", "apple", true},
 	}
 
 	for _, test := range tests {
-		if output := matchChar(test.pattern, test.char); output != test.expected {
+		if output := matchExactWithWildCard(test.pattern, test.char); output != test.expected {
 			t.Errorf("Test failed: %v inputted, %v expected, %v received", test, test.expected, output)
 		}
 	}
@@ -27,13 +27,17 @@ func TestMatchRegex(t *testing.T) {
 		str      string
 		expected bool
 	}{
-		{"apple", "apple", true},
-		{"ap", "apple", true},
-		{"le", "apple", true},
-		{"a", "apple", true},
-		{".", "apple", true},
-		{"apwle", "apple", false},
-		{"peach", "apple", false},
+		{"^app", "apple", true},
+		{"le$", "apple", true},
+		{"^a", "apple", true},
+		{".$", "apple", true},
+		{"apple$", "tasty apple", true},
+		{"^apple", "apple pie", true},
+		{"^apple$", "apple", true},
+		{"^apple$", "tasty apple", false},
+		{"^apple$", "apple pie", false},
+		{"app$", "apple", false},
+		{"^le", "apple", false},
 	}
 
 	for _, tt := range tests {

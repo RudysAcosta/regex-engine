@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 )
 
 func main() {
-
-	var input string
-
-	fmt.Scan(&input)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
 
 	inputs := strings.Split(input, "|")
 
@@ -27,23 +28,47 @@ func main() {
 	}
 }
 
-func matchChar(pattern, char byte) bool {
-	return pattern == char || pattern == '.'
-}
+func matchExactWithWildCard(pattern, str string) bool {
+	if len(pattern) != len(str) {
+		return false
+	}
 
-func matchRegex(regex, str string) bool {
-	i, j := 0, 0
-
-	for i < len(str) && j < len(regex) {
-		if matchChar(regex[j], str[i]) {
-			i++
-			j++
-		} else if j > 0 {
+	for i := 0; i < len(pattern); i++ {
+		if pattern[i] != '.' && pattern[i] != str[i] {
 			return false
-		} else {
-			i++
 		}
 	}
 
-	return j == len(regex)
+	return true
+}
+
+func matchRegex(pattern, str string) bool {
+
+	startMetachar := strings.HasPrefix(pattern, "^")
+	if startMetachar {
+		pattern = pattern[1:]
+	}
+
+	endMetachar := strings.HasSuffix(pattern, "$")
+	if endMetachar {
+		pattern = pattern[:len(pattern)-1]
+	}
+
+	if startMetachar && endMetachar {
+		return matchExactWithWildCard(pattern, str)
+	} else if startMetachar {
+		str := str[:len(pattern)]
+		return matchExactWithWildCard(pattern, str)
+	} else if endMetachar {
+		str := str[len(str)-len(pattern):]
+		return matchExactWithWildCard(pattern, str)
+	}
+
+	for i := 0; i <= len(str)-len(pattern); i++ {
+		if matchExactWithWildCard(pattern, str[i:i+len(pattern)]) {
+			return true
+		}
+	}
+
+	return false
 }
